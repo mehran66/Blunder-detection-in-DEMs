@@ -1,0 +1,92 @@
+%% Start of the program.
+clc
+clear
+close all
+%% surface define
+% NumberOfPoint=1000;
+% Surface=(rand(NumberOfPoint,3));
+% Surface(:,1)=Surface(:,1)*(1000); 
+% Surface(:,2)=Surface(:,2)*(1000);
+% Surface(:,3)=Surface(:,3)*(3-1)+1;
+% Surface([10],3)=10;
+
+
+M =uiimport('-file');
+Mgh=M.patch(2).A;
+NumberOfPoint=size(Mgh,1);
+Surface=Mgh(:,2:4);
+Mean=mean(Mgh(:,4));
+Max=max(Mgh(:,4));
+Min=min(Mgh(:,4));
+Surface([10 56 200 215],3)=Mean+2*Max;
+
+%%  Algoritm Parameters
+PopSize = 50;
+ChromLength = 10;
+KeepPercent = 10/100;
+CrossPercent = 30/100;
+MutatPercent = 1 - KeepPercent - CrossPercent;
+KeepNum = round(KeepPercent * PopSize);
+NewPopNum=KeepNum;
+CrossNum = round(CrossPercent * PopSize);
+MutatNum = PopSize - KeepNum - CrossNum;
+MaximumIteration=50;
+                     
+%% Initial Population
+temp=randi([1,NumberOfPoint],1,PopSize*ChromLength);
+jj=1;
+for ii=1:PopSize
+   Pop(ii,:)=temp(jj:jj+ChromLength-1);
+   jj=jj+ChromLength;
+end
+Cost=Cost_Fcn(Surface,Pop);
+[Cost Index]=sort(Cost);
+Pop=Pop(Index,:);
+
+%% Loop
+for ii=1:MaximumIteration
+
+% Elite
+     Elite=Pop(1:KeepNum,:);
+% New Pop
+     rand1=randi([1,PopSize],1,NewPopNum);
+     NewPop=NewPop_Fnc(Surface,Pop(rand1,:));
+% Cross Over
+      SelectedIndexes=SelectParents_Fcn(Cost,CrossNum);
+      CrossOver= CrossOver_Fnc(SelectedIndexes,Pop);
+% Mutation
+    rand2=randi([1,PopSize],1,MutatNum);
+    for ii=1:MutatNum
+        temp=[];
+        temp=Pop(rand2(ii),:);
+        rand3=randperm(ChromLength);
+        rand4=rand3(1:floor(ChromLength/2));
+        temp(rand4)=0;
+        Mutatation(ii,:)=temp;
+    end
+% Reproduction
+        temp=[];
+        temp=randi([1,NumberOfPoint],1,PopSize*ChromLength);
+        jj=1;
+        for ii=1:PopSize
+           Reproduction(ii,:)=temp(jj:jj+ChromLength-1);
+           jj=jj+ChromLength;
+        end
+        
+ %Final parts
+        FinalPop=[Elite;NewPop;CrossOver;Mutatation;Reproduction];
+        Cost_temp=Cost_Fcn(Surface,FinalPop);
+        [Cost_temp Index]=sort(Cost_temp);
+        FinalPop=FinalPop(Index,:);
+        
+        Pop=FinalPop(1:PopSize,:);
+        Cost=Cost_temp(1:PopSize);
+
+
+
+end    
+    
+     
+ unique(Pop(1,:))
+
+ 

@@ -1,0 +1,52 @@
+%% Start of the program.
+clc
+clear
+close all
+
+%% surface define
+% NumberOfPoint=1000;
+% Surface=(rand(NumberOfPoint,3));
+% Surface(:,1)=Surface(:,1)*(1000); 
+% Surface(:,2)=Surface(:,2)*(1000);
+% Surface(:,3)=Surface(:,3)*(3-1)+1;
+% Surface([10],3)=10;
+
+
+M =uiimport('-file');
+Mgh=M.patch(1).A;
+NumberOfPoint=size(Mgh,1);
+Surface=Mgh(:,2:4);
+Mean=mean(Mgh(:,4));
+Max=max(Mgh(:,4));
+Min=min(Mgh(:,4));
+Surface([10 11 29 40],3)=Mean+2*Max;
+
+%% Algoritm Parameters
+Tabutenure =10;
+MaximumIteration=1000;
+ChromLength=10;
+%% Initial Population
+Current_Point=randi([1,NumberOfPoint],1,ChromLength);
+Current_Cost=Cost_Fcn(Surface,Current_Point);
+Best_Cost=Current_Cost;
+Best_Point=Current_Point;
+Iter=1;
+while Iter~=MaximumIteration 
+    Iter
+    [Temp]=NeigborPoint_Fnc(Surface,Current_Point,NumberOfPoint);
+    Current_Point=Temp;
+    Current_Cost=Cost_Fcn(Surface,Current_Point);
+    if Current_Cost<Best_Cost
+        Best_Point=Current_Point
+        Best_Cost=Current_Cost;
+    end
+    
+    if length(Temp)==1
+        k=0;
+         break;
+    end
+    Current_Point=Temp;
+    Iter=Iter+1
+end  
+f=unique(Best_Point);
+f=f(2:end)

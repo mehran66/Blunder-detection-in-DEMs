@@ -1,0 +1,56 @@
+%% Start of the program.
+clc
+clear
+close all
+
+%% surface define
+NumberOfPoint=1000;
+Surface=(rand(NumberOfPoint,3));
+Surface(:,1)=Surface(:,1)*(1000); 
+Surface(:,2)=Surface(:,2)*(1000);
+Surface(:,3)=Surface(:,3)*(30-1)+1;
+Surface([1 20 56],3)=50;
+
+%% Algoritm Parameters
+SwarmSize = 10;
+MaxIteration = 10 ;
+ChromLength=10;
+%% Initial Population
+Pop(SwarmSize,ChromLength)=0;
+Particle_Length(1:SwarmSize)=randi([1,ChromLength],1,SwarmSize);
+for ii=1:SwarmSize
+    temp=[];
+    temp=randi([1,NumberOfPoint],1,Particle_Length(ii));
+    Pop(ii,1:Particle_Length(ii))=temp;
+end
+Cost=Cost_Fcn(Surface,Pop);
+[Cost Index]=sort(Cost);
+GBest=Pop(1,:);
+GBest_Cost=Cost_Fcn(Surface,Pop(1,:));
+Particle_Length=Particle_Length(Index);
+Best_Particle_Length=Particle_Length(1);
+%% Loop
+Iter=1;
+while Iter<MaxIteration
+    Pop=NeigborPoint_Fnc(Surface,Pop,Best_Particle_Length,Particle_Length);
+    Cost=Cost_Fcn(Surface,Pop);
+    [Cost Index]=sort(Cost);
+     Pop=Pop(Index,:);
+     Particle_Length=Particle_Length(Index);
+     if Cost(1)<Best_Cost
+         GBest=Pop(1,:);
+         GBest_Cost=Cost(1);
+         Best_Particle_Length=Particle_Length(1);
+     end
+     for ii=1:size(Pop,1)
+         if Particle_Length(ii)<Best_Particle_Length
+             Particle_Length(ii)= Particle_Length(ii)+1;
+         elseif Particle_Length(ii)>Best_Particle_Length
+             Particle_Length(ii)= Particle_Length(ii)-1;
+      end
+      
+    
+    Iter=Iter+1;
+end
+mgh=sort(unique(Best));
+Blunder=mgh(2:end)
